@@ -10,6 +10,13 @@ changes; they are called out explicitly.
 
 ### Fixed
 
+- **Applicants who once worked at "Applied Materials" were renamed after their job title.** The detail-page parser
+  treated any line starting with "Applied" as the "Applied 3 days ago" line, so for these applicants the pane finder
+  stopped at the experience block (it holds that line and the "View full profile" link) and the header parser took the
+  first experience title as the name and the employer line as the headline, overwriting the correct list values.
+  Only real applied-date lines count now, the pane must contain the header's name link, a header-derived name must
+  read like a person (never a title or a LinkedIn UI label), and a detail fetch now merges its extras into the stored
+  raw data instead of replacing the list's card text. Seven applicants were affected and are re-fetched.
 - **Applications took 2 to 3 minutes each while Chrome sat behind other windows.** Chrome acknowledges each mouse
   event only after its window draws a frame, and macOS gives a window that other apps fully cover only a few frames.
   Every simulated mouse move then took about a second, so a 40-point mouse path cost 40 seconds, twice per

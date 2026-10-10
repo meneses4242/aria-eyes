@@ -212,7 +212,7 @@ const SDUI: SelectorSet = {
     name: ['main h1', 'main h2', '[data-view-name*="applicant-name" i]', 'main a[href*="/in/"] span'],
     headline: ['[data-view-name*="headline" i]', 'main h1 + p', 'main h2 + p'],
     location: ['[data-view-name*="location" i]'],
-    appliedAgo: [':text-matches("Applied\\\\s", "i")', ':text-matches("\\\\d+\\\\s*(minute|hour|day|week|month)s?\\\\s*ago", "i")'],
+    appliedAgo: [':text-matches("Applied\\\\s+(on|today|yesterday|\\\\d)", "i")', ':text-matches("\\\\d+\\\\s*(minute|hour|day|week|month)s?\\\\s*ago", "i")'],
     profileLink: ['main a[href*="/in/"]', 'a[href*="/in/"]'],
     moreButton: ['main button[aria-label*="More" i]', 'button[data-view-name*="more" i]', 'main button:has-text("More")'],
     // The SDUI button's text content carries hidden helper text, so :text-is("Contact") misses it; the data-view-name is stable.

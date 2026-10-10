@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { decideResumeIntercept, extractFitLabel, extractQualificationsText, filenameFromContentDisposition, findDocumentUrls, looksTextual, parseDetailHeaderText, parseScreeningText, pickResumeExt, redactUrl, scoreDocumentUrl, shouldReadResponseBody, sliceBetween, sniffExt } from '../src/linkedin/application.js';
+import { APPLIED_LINE, decideResumeIntercept, extractFitLabel, looksLikePersonName, extractQualificationsText, filenameFromContentDisposition, findDocumentUrls, looksTextual, parseDetailHeaderText, parseScreeningText, pickResumeExt, redactUrl, scoreDocumentUrl, shouldReadResponseBody, sliceBetween, sniffExt } from '../src/linkedin/application.js';
 
 describe('filenameFromContentDisposition', () => {
   it('handles plain, quoted and RFC 5987 forms', () => {
@@ -42,6 +42,25 @@ describe('parseDetailHeaderText', () => {
   it('extracts header fields from a detail page', () => {
     const h = parseDetailHeaderText('Applicants\nJane Doe\nJane Doe · 2nd\nSenior Backend Engineer at Acme\nBerlin, Germany\nApplied 3 days ago\nMessage\nGood fit\nMaybe\nNot a fit\nMore');
     expect(h).toMatchObject({ fullName: 'Jane Doe', headline: 'Senior Backend Engineer at Acme', location: 'Berlin, Germany', appliedAgo: 'Applied 3 days ago' });
+  });
+
+  it('does not mistake an employer called Applied Materials for the applied date, nor a job title for the name', () => {
+    // A pane that starts at the experience section (its header missing) must yield no name rather than a job title.
+    const pane = 'Vice President of Manufacturing\nAnduril Industries • 2025-2026\nExperience verified\nChief Operating Officer\n1X • 2019-2020\nSenior Process Engineer\nApplied Materials • 1995-1998\nEducation\nView full profile';
+    const h = parseDetailHeaderText(pane);
+    expect(h.appliedAgo).toBeUndefined();
+    expect(h.fullName).toBeUndefined();
+    // With the header present, the real name and applied line win even though "Applied Materials" is on the page.
+    const full = parseDetailHeaderText('Paul Herz\nPaul Herz · 2nd\nExecutive operations leader\nSan Francisco Bay Area\nApplied 2w ago\nMessage\n' + pane);
+    expect(full).toMatchObject({ fullName: 'Paul Herz', appliedAgo: 'Applied 2w ago' });
+    expect(APPLIED_LINE.test('Applied on Sep 20, 2026')).toBe(true);
+    expect(APPLIED_LINE.test('Applied today')).toBe(true);
+    expect(APPLIED_LINE.test('Applied Materials • 1995-1998')).toBe(false);
+    expect(APPLIED_LINE.test('Applied Research Lab Penn State • 2001-2003')).toBe(false);
+    expect(looksLikePersonName('Dana Whitfield')).toBe(true);
+    expect(looksLikePersonName('Mary W.')).toBe(true);
+    expect(looksLikePersonName('Sr. Director - Applied AI')).toBe(false);
+    expect(looksLikePersonName('Chief Operating Officer')).toBe(false);
   });
 });
 

@@ -153,7 +153,8 @@ export function defaultRunners(): Record<TaskType, TaskRunner> {
         resumePath: r.resumePath,
         resumeFileName: r.resumeFileName,
         resumeText: resumeText || undefined,
-        raw: skipResume ? { ...r.extra, resumeSkipped: 'browser closed during the previous attempt' } : r.extra,
+        // Keep the list's raw card text (reparse relies on it) and add the detail page's extras on top.
+        raw: { ...((existing?.raw as Record<string, unknown> | undefined) ?? {}), ...r.extra, ...(skipResume ? { resumeSkipped: 'browser closed during the previous attempt' } : {}) },
       });
       if (r.resumePath && !resumeText) deps.log.warn('resume saved but no text could be extracted (scanned PDF?)', { applicationId: p.applicationId, path: r.resumePath });
       const profileUrl = r.profileUrl ?? existing?.profileUrl;

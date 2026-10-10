@@ -73,6 +73,22 @@ describe('findDetailPanePath', () => {
     expect(findDetailPanePath(doc)).toBe('body > main:nth-child(2) > div:nth-child(1) > div:nth-child(2) > div:nth-child(1)');
   });
 
+  it('does not stop at an experience block whose employer is called Applied Materials', () => {
+    const body = new El('BODY');
+    const html = new El('HTML').add(body);
+    const header = div().add(new El('A', { href: 'https://www.linkedin.com/in/paul/' }, 'Paul Herz'), div('Applied 2w ago'));
+    const experience = div().add(
+      div('Vice President of Manufacturing\nAnduril Industries • 2025-2026'),
+      div('Senior Process Engineer\nApplied Materials • 1995-1998'),
+      div(summary),
+      new El('A', { href: 'https://www.linkedin.com/in/paul/', 'data-view-name': 'hiring-applicant-view-profile' }, 'View full profile'),
+    );
+    const pane = div().add(header, experience);
+    body.add(new El('MAIN').add(div().add(pane)));
+    // the experience block holds an /in/ link (View full profile) and an "Applied Materials" line, but not the header
+    expect(findDetailPanePath(html as unknown as Document)).toBe('body > main:nth-child(1) > div:nth-child(1) > div:nth-child(1)');
+  });
+
   it('returns null without a View full profile link', () => {
     const body = new El('BODY').add(div('Hiring Pro'));
     new El('HTML').add(body);

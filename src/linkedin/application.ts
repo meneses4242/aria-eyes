@@ -61,15 +61,33 @@ export function pickResumeExt(input: { fileName?: string; contentType?: string |
 const ACTION_LINE = /^(message|good fit|maybe|not a fit|top fit|more|more actions|share|forward|resume|download|download resume|view resume|view profile|save|note|notes|add a note|rate|dismiss|close|back|applicants|applied via linkedin|applied via easy apply|easy apply|new|viewed|unread|shortlisted|contacted|rejected|hired|in review|contact info|skip to (main )?content|home|my network|jobs|messaging|notifications|me|for business)$/i;
 const LOCATION_LIKE = /^\p{Lu}[\p{L}\p{M}.'-]+(?:, \p{Lu}[\p{L}\p{M}. '-]+)+$/u;
 
+/**
+ * The header's applied line: "Applied 3 days ago", "Applied 2w ago", "Applied on Sep 20, 2026", "Applied today". A line
+ * that merely starts with the word (an employer such as "Applied Materials") is not one.
+ */
+export const APPLIED_LINE = /^applied\s+(on\b|today\b|yesterday\b|\d+\s*(m|min|minute|h|hr|hour|d|day|w|wk|week|mo|month|y|yr|year)s?\b|[a-z]{3,9}\.?\s+\d{1,2}\b)/i;
+
+/** A person's name as LinkedIn renders it: two to five words, no digits, not a job title or a company line. */
+export function looksLikePersonName(s: string | undefined): boolean {
+  if (!s) return false;
+  const t = s.trim();
+  if (t.length < 2 || t.length > 60 || /\d|[@|:/•]/.test(t)) return false;
+  if (/\b(vice president|president|director|manager|officer|engineer|consultant|founder|head of|chief|senior|sr\.?|lead|partner|principal|executive|operations|strategy|analyst|specialist|coordinator|assistant|intern|advisor|advisory|fractional|experience|education|verified|skills|about|message|resume|contact|qualifications?|screening|profile|view full profile|applicants?)\b/i.test(t)) return false;
+  const words = t.split(/\s+/);
+  return words.length >= 2 && words.length <= 5;
+}
+
 export function parseDetailHeaderText(text: string): { fullName?: string; headline?: string; location?: string; appliedAgo?: string } {
   const lines: string[] = [];
   for (const raw of text.slice(0, 4000).split(/\r?\n/)) {
     const l = raw.replace(/\s+/g, ' ').replace(/\s*·\s*(1st|2nd|3rd|3rd\+)\s*$/i, '').trim();
     if (l && lines[lines.length - 1] !== l) lines.push(l);
   }
-  const appliedAgo = lines.find((l) => /^applied\b/i.test(l) || (/\bago\b/i.test(l) && l.length < 60));
+  const appliedAgo = lines.find((l) => APPLIED_LINE.test(l) || (/\bago\b/i.test(l) && l.length < 60));
   const rest = lines.filter((l) => l !== appliedAgo && !ACTION_LINE.test(l) && !/^\d+(st|nd|rd|th)$/.test(l) && !/^(1st|2nd|3rd)\b/i.test(l));
-  const nameIdx = rest.findIndex((l) => l.length >= 2 && l.length <= 60 && !/\d/.test(l) && !/[@|:/]/.test(l) && !/applicant/i.test(l));
+  // The name is the first line that reads like a person, never a job title: a pane that starts at the experience
+  // section (its header missing) must not yield "Vice President of Manufacturing" as the applicant.
+  const nameIdx = rest.findIndex((l) => looksLikePersonName(l) && !/applicant/i.test(l));
   if (nameIdx < 0) return { appliedAgo };
   const fullName = rest[nameIdx];
   const after = rest.slice(nameIdx + 1, nameIdx + 5);
@@ -182,7 +200,8 @@ export async function fetchApplicationDetail(ctx: ScrapeContext, jobId: string, 
   const header = parseDetailHeaderText(text);
   step('text');
 
-  const fullName = cleanName((await textOf(await firstVisible(root, SEL[gen].detail.name, { timeoutMs: 1500 }))) ?? header.fullName);
+  // A header-derived name is used only when it reads like a person; a mislocated pane must not rename the applicant.
+  const fullName = cleanName((await textOf(await firstVisible(root, SEL[gen].detail.name, { timeoutMs: 1500 }))) ?? (looksLikePersonName(header.fullName) ? header.fullName : undefined));
   const headline = (await textOf(await firstVisible(root, SEL[gen].detail.headline, { timeoutMs: 400 }))) ?? header.headline;
   const location = (await textOf(await firstVisible(root, SEL[gen].detail.location, { timeoutMs: 400 }))) ?? header.location;
   const appliedAgo = header.appliedAgo ?? (await textOf(await firstVisible(root, SEL[gen].detail.appliedAgo, { timeoutMs: 400 })));
@@ -342,7 +361,11 @@ export function findDetailPanePath(doc?: Document): string | null {
     if (el.querySelector('a[componentkey^="paginatedApplicantCard-"]')) break;
     if (el.tagName === 'DIV') {
       const text = (el as HTMLElement).innerText ?? el.textContent ?? '';
-      if (/(^|\n)\s*Applied/i.test(text) && el.querySelector('a[href*="/in/"]')) {
+      // Only a real applied-date line counts ("Applied Materials • 1995-1998" in the experience list does not), and the
+      // pane must hold the header's name link, not merely the "View full profile" link we started from.
+      const hasAppliedLine = /(^|\n)\s*Applied\s+(on\b|today\b|yesterday\b|\d|[A-Za-z]{3,9}\.?\s+\d{1,2}\b)/i.test(text);
+      const nameLink = Array.from(el.querySelectorAll('a[href*="/in/"]')).some((a) => !/view full profile/i.test(a.textContent ?? ''));
+      if (hasAppliedLine && nameLink) {
         best ??= el;
         if (text.length >= 400) {
           pane = el;
@@ -385,11 +408,11 @@ async function locateProDetailPane(page: Page): Promise<Locator | null> {
 
 async function locateProDetailPaneByText(page: Page): Promise<Locator | null> {
   const selectors = [
-    'div:has(a[href*="/in/"]):has(a:has-text("View full profile")):has(:text-matches("^Applied", "i"))',
+    'div:has(a[href*="/in/"]):has(a:has-text("View full profile")):has(:text-matches("^Applied (on|today|yesterday|\\d)", "i"))',
     'div:has(a[href*="/in/"]):has(a:has-text("View full profile")):has(:text-is("Resume"))',
-    'div:has(a:has-text("View full profile")):has(:text-matches("^Applied", "i"))',
+    'div:has(a:has-text("View full profile")):has(:text-matches("^Applied (on|today|yesterday|\\d)", "i"))',
     'div:has(a[href*="/in/"]):has(:text-is("Resume"))',
-    'div:has(a[href*="/in/"]):has(:text-matches("^Applied", "i"))',
+    'div:has(a[href*="/in/"]):has(:text-matches("^Applied (on|today|yesterday|\\d)", "i"))',
     'div:has(a:has-text("View full profile"))',
   ];
   let fallback: Locator | null = null;
