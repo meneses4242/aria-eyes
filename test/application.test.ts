@@ -61,6 +61,11 @@ describe('parseDetailHeaderText', () => {
     expect(looksLikePersonName('Mary W.')).toBe(true);
     expect(looksLikePersonName('Sr. Director - Applied AI')).toBe(false);
     expect(looksLikePersonName('Chief Operating Officer')).toBe(false);
+    expect(looksLikePersonName('Filter and sort')).toBe(false);
+    // A pane that is really the list's filter control yields no name and no headline.
+    const control = parseDetailHeaderText('Filter and sort\nMeet at least 5/10 of your qualifications.\nAll (1,062)\nView full profile');
+    expect(control.fullName).toBeUndefined();
+    expect(control.headline).toBeUndefined();
   });
 });
 

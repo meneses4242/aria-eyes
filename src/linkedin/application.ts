@@ -72,7 +72,7 @@ export function looksLikePersonName(s: string | undefined): boolean {
   if (!s) return false;
   const t = s.trim();
   if (t.length < 2 || t.length > 60 || /\d|[@|:/•]/.test(t)) return false;
-  if (/\b(vice president|president|director|manager|officer|engineer|consultant|founder|head of|chief|senior|sr\.?|lead|partner|principal|executive|operations|strategy|analyst|specialist|coordinator|assistant|intern|advisor|advisory|fractional|experience|education|verified|skills|about|message|resume|contact|qualifications?|screening|profile|view full profile|applicants?)\b/i.test(t)) return false;
+  if (/\b(vice president|president|director|manager|officer|engineer|consultant|founder|head of|chief|senior|sr\.?|lead|partner|principal|executive|operations|strategy|analyst|specialist|coordinator|assistant|intern|advisor|advisory|fractional|experience|education|verified|skills|about|message|resume|contact|qualifications?|screening|profile|view full profile|applicants?|filter|sort|rating|ratings|meet at least)\b/i.test(t)) return false;
   const words = t.split(/\s+/);
   return words.length >= 2 && words.length <= 5;
 }
@@ -84,7 +84,9 @@ export function parseDetailHeaderText(text: string): { fullName?: string; headli
     if (l && lines[lines.length - 1] !== l) lines.push(l);
   }
   const appliedAgo = lines.find((l) => APPLIED_LINE.test(l) || (/\bago\b/i.test(l) && l.length < 60));
-  const rest = lines.filter((l) => l !== appliedAgo && !ACTION_LINE.test(l) && !/^\d+(st|nd|rd|th)$/.test(l) && !/^(1st|2nd|3rd)\b/i.test(l));
+  // LinkedIn's list controls ("Filter and sort", "Meet at least 5/10 of your qualifications.") are never header fields.
+  const UI_LABEL = /^(filter and sort|sort by\b|meet at least\b|all \(|rating\b|ratings\b|applicants?\b|show more|view full profile)/i;
+  const rest = lines.filter((l) => l !== appliedAgo && !ACTION_LINE.test(l) && !UI_LABEL.test(l) && !/^\d+(st|nd|rd|th)$/.test(l) && !/^(1st|2nd|3rd)\b/i.test(l));
   // The name is the first line that reads like a person, never a job title: a pane that starts at the experience
   // section (its header missing) must not yield "Vice President of Manufacturing" as the applicant.
   const nameIdx = rest.findIndex((l) => looksLikePersonName(l) && !/applicant/i.test(l));
